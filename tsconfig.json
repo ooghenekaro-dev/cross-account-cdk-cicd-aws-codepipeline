@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "CommonJS",
+"moduleResolution": "node",
     "lib": [
       "es2022"
     ],
@@ -24,8 +24,6 @@
       "./node_modules/@types"
     ]
   },
-  "exclude": [
-    "node_modules",
-    "cdk.out"
-  ]
+  "include": ["bin", "lib", "scripts", "test"],
+  "exclude": [  "node_modules", "cdk.out", "dist" ]
 }

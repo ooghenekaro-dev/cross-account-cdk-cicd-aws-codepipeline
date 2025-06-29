@@ -8,18 +8,27 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "lint": "eslint . --ext .ts",
+    "security": "cfn_nag_scan --input-path cdk.out",
+    "validate": "ts-node scripts/validate.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/node": "22.7.9",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.2.5",
+    "@types/node": "^22.7.9",
     "aws-cdk": "2.1018.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.5",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "~5.6.3"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.828.0",
+    "@aws-sdk/client-resource-groups-tagging-api": "^3.828.0",
     "aws-cdk-lib": "2.199.0",
     "constructs": "^10.0.0"
   }
