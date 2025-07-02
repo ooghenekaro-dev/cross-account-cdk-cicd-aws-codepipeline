@@ -1,7 +1,7 @@
 import { Stage, StageProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { MainStack } from '../stacks/main-stack';
-import { EnvironmentConfig } from '../config/project-config';
+import { EnvironmentConfig } from '../config/types'; // updated path
 
 interface DeploymentProps extends StageProps {
   envs: EnvironmentConfig[];
@@ -13,10 +13,15 @@ export class Deployment extends Stage {
     super(scope, id, props);
 
     props.envs.forEach((env) => {
-      // Use account ID to make Construct ID unique
-      new MainStack(this, `${env.name}-${props.projectName}-${env.accountId}`, {
-        env: { account: env.accountId, region: env.region },
-        stackName: `${env.name}-${props.projectName}-mainstack`,  // AWS console stack name
+      const stackId = `${env.name}-mainstack`;
+      const stackName = `${env.name}-${props.projectName}-mainstack`;
+
+      new MainStack(this, stackId, {
+        env: {
+          account: env.accountId,
+          region: env.region
+        },
+        stackName
       });
     });
   }

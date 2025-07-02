@@ -24,6 +24,6 @@
       "./node_modules/@types"
     ]
   },
-  "include": ["bin", "lib", "scripts", "test"],
+  "include": ["lib", "scripts", "test", "bin/*.ts"],
   "exclude": [  "node_modules", "cdk.out", "dist" ]
 }

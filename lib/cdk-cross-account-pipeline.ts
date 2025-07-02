@@ -1,3 +1,4 @@
+// lib/pipeline.ts
 import {
   CodePipeline,
   CodePipelineSource,
@@ -7,32 +8,34 @@ import {
 import { Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { Deployment } from './stages'
-import { getProjectEnvironments, getProjectName } from './config/project-config'
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import * as codebuild from 'aws-cdk-lib/aws-codebuild'
+import { ProjectEnvironment } from './config/types'
+
+interface CICDPipelineStackProps extends StackProps {
+  projectName: string
+  repoOwner: string
+  repoName: string
+  connectionArn: string
+  environments: ProjectEnvironment[]
+}
 
 export class CICDPipelineStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
+  constructor(scope: Construct, id: string, props: CICDPipelineStackProps) {
     super(scope, id, props)
 
-    // We Get project name from CDK context (cdk.json or CLI context)
-    const projectName = getProjectName(this)
-
-    // Here we  Create Our pipeline
     const pipeline = new CodePipeline(this, 'Pipeline', {
-      pipelineName: `${projectName}-pipeline`,
+      pipelineName: `${props.projectName}-pipeline`,
       synth: new ShellStep('Synth', {
-        input: CodePipelineSource.connection('ooghenekaro-dev/cross-account-cdk-cicd-aws-codepipeline', 'main', {
-          connectionArn: 'arn:aws:codeconnections:eu-west-2:233535120968:connection/a87a8ab2-a00d-43ba-bdd9-b7978f3db375'
+        input: CodePipelineSource.connection(`${props.repoOwner}/${props.repoName}`, 'main', {
+          connectionArn: props.connectionArn
         }),
         installCommands: ['npm ci'],
         commands: ['npm run build', 'npx cdk synth']
-
       }),
-        crossAccountKeys: true  // Since this pipeline is cross-account, we need to use cross-account keys ro ensure smooth deployment to our target accounts.
+      crossAccountKeys: true
     })
 
-    //We create a Policy allowing the validation step to describe CF stacks and tagging
     const validatePolicy = new PolicyStatement({
       actions: [
         'cloudformation:DescribeStacks',
@@ -42,11 +45,10 @@ export class CICDPipelineStack extends Stack {
       resources: ['*']
     })
 
-    // Here we Add stages for each environment group returned from your config
-    for (const stageConfig of getProjectEnvironments(projectName)) {
+    for (const stageConfig of props.environments) {
       const deploymentStage = new Deployment(this, stageConfig.stageName, {
         envs: stageConfig.environments,
-        projectName
+        projectName: props.projectName
       })
 
       pipeline.addStage(deploymentStage, {
