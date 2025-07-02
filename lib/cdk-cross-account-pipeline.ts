@@ -21,8 +21,10 @@ interface CICDPipelineStackProps extends StackProps {
 }
 
 export class CICDPipelineStack extends Stack {
-  constructor(scope: Construct, id: string, props: CICDPipelineStackProps) {
+  constructor(scope: Construct, id: string, props: CICDPipelineStackProps & { appFile?: string }) {
     super(scope, id, props)
+
+    const appFile = props.appFile || `bin/${props.projectName.toLowerCase()}.ts`
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: `${props.projectName}-pipeline`,
@@ -32,7 +34,7 @@ export class CICDPipelineStack extends Stack {
         }),
         installCommands: ['npm ci'],
         commands: ['npm run build', 
-          `npx cdk synth --app "npx ts-node --prefer-ts-exts bin/${props.projectName.toLowerCase()}.ts"`]
+                   `npx cdk synth --app "npx ts-node --prefer-ts-exts ${appFile}"`]
       }),
       crossAccountKeys: true
     })

@@ -11,6 +11,7 @@ new CICDPipelineStack(app, 'AjalaCICDPipelineStack', {
   repoName: 'cross-account-cdk-cicd-aws-codepipeline',
   connectionArn: 'arn:aws:codeconnections:eu-west-2:233535120968:connection/a87a8ab2-a00d-43ba-bdd9-b7978f3db375',
   environments: ajalaEnvironments,
+  appFile: 'bin/ajala.ts', // Specify the app file
   env: {
     account: '233535120968', 
     region: 'eu-west-2'
