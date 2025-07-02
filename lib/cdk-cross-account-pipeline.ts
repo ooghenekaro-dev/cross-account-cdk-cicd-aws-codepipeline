@@ -31,7 +31,8 @@ export class CICDPipelineStack extends Stack {
           connectionArn: props.connectionArn
         }),
         installCommands: ['npm ci'],
-        commands: ['npm run build', 'npx cdk synth']
+        commands: ['npm run build', 
+          `npx cdk synth --app "npx ts-node --prefer-ts-exts bin/${props.projectName.toLowerCase()}.ts"`]
       }),
       crossAccountKeys: true
     })
