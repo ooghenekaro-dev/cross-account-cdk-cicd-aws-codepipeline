@@ -63,7 +63,7 @@ export class CICDPipelineStack extends Stack {
           }),
           new CodeBuildStep(`Security-${stageConfig.stageName}`, {
             installCommands: ['npm ci', 'gem install cfn-nag'],
-            commands: ['npm run build', 'npm run security']
+            commands: ['npm run build', 'npx cdk synth', 'npm run security']
           })
         ],
         post: [
