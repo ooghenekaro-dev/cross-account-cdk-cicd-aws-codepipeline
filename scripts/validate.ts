@@ -11,7 +11,7 @@ import {
 } from '@aws-sdk/client-resource-groups-tagging-api'
 
 const stage = process.env.STAGE ?? 'Dev'
-const stackName = `${stage}-MainStack`
+const stackName = `${stage}`
 const requiredTags = ['Environment', 'Project']
 
 const cf = new CloudFormationClient({})

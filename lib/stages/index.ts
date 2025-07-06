@@ -13,8 +13,8 @@ export class Deployment extends Stage {
     super(scope, id, props);
 
     props.envs.forEach((env) => {
-      const stackId = `${env.name}-mainstack`;
-      const stackName = `${env.name}-${props.projectName}-mainstack`;
+      const stackId = `${env.name}`;
+      const stackName = `${env.name}-${props.projectName}`;
 
       new MainStack(this, stackId, {
         env: {
