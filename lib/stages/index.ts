@@ -1,7 +1,7 @@
 import { Stage, StageProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { MainStack } from '../stacks/main-stack';
-import { EnvironmentConfig } from '../config/types'; // updated path
+import { EnvironmentConfig } from '../config/types';
 
 interface DeploymentProps extends StageProps {
   envs: EnvironmentConfig[];
