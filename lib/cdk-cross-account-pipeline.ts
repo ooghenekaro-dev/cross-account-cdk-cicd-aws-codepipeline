@@ -11,6 +11,10 @@ import { Deployment } from './stages'
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam'
 import * as codebuild from 'aws-cdk-lib/aws-codebuild'
 import { ProjectEnvironment } from './config/types'
+import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as kms from 'aws-cdk-lib/aws-kms'
+import { RemovalPolicy, Duration } from 'aws-cdk-lib';
+
 
 interface CICDPipelineStackProps extends StackProps {
   projectName: string
@@ -24,6 +28,26 @@ export class CICDPipelineStack extends Stack {
   constructor(scope: Construct, id: string, props: CICDPipelineStackProps & { appFile?: string }) {
     super(scope, id, props)
 
+  // Create an S3 bucket for access logs
+   const accessLogsBucket = new s3.Bucket(this, 'PipelineAccessLogsBucket', {
+     removalPolicy: RemovalPolicy.DESTROY,
+     autoDeleteObjects: true,
+     lifecycleRules: [{ expiration: Duration.days(30) }],
+    });
+
+//  Create a custome KMS key with rotation enabled, we only had to do due to cfn-nag failing our pipeline for rotation not enabled for our default key created for us by CDK
+   const artifactKey = new kms.Key(this, 'PipelineKey', {
+     enableKeyRotation: true,
+    });
+
+// Create an artifact bucket with access logging and we use our custom KMS key
+    const artifactBucket = new s3.Bucket(this, 'PipelineArtifactsBucket', {
+      encryptionKey: artifactKey,
+      serverAccessLogsBucket: accessLogsBucket,
+      serverAccessLogsPrefix: 'logs/',
+     });
+
+
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       pipelineName: `${props.projectName}-pipeline`,
@@ -35,7 +59,8 @@ export class CICDPipelineStack extends Stack {
         commands: ['npm run build', 
                    'npx cdk synth']
       }),
-      crossAccountKeys: true
+      crossAccountKeys: true,
+      artifactBucket: artifactBucket
     })
 
     const validatePolicy = new PolicyStatement({
@@ -44,7 +69,7 @@ export class CICDPipelineStack extends Stack {
         'cloudformation:ListStackResources',
         'tag:GetResources'
       ],
-      resources: ['*']
+      resources: [`arn:aws:cloudformation:${this.region}:${this.account}:stack/*`]
     })
 
     for (const stageConfig of props.environments) {
