@@ -1,6 +1,7 @@
 {
   "name": "cdk-cross-account-pipeline",
   "version": "0.1.0",
+  "type": "module",
   "bin": {
     "cdk-cross-account-pipeline": "bin/cdk-cross-account-pipeline.js"
   },
