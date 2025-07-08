@@ -9,7 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "lint": "eslint . --config eslint.config.js",
+    "lint": "eslint . --ext .ts,.js",
     "security": "find cdk.out -name '*.template.json' -exec cfn_nag_scan --input-path {} +",
     "validate": "ts-node scripts/validate.ts"
   },
